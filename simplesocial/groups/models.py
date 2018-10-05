@@ -12,7 +12,7 @@ from django import template
 register = template.Library()
 
 class Group(models.Model):
-    name = models.Charfield(max_length=255,unique=True)
+    name = models.CharField(max_length=255,unique=True)
     slug = models.SlugField(allow_unicode=True, unique=True)
     description = models.TextField(blank=True,default='')
     description_html = models.TextField(editable=False,default='',blank=True)
@@ -21,7 +21,7 @@ class Group(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self,*args,kwargs**):
+    def save(self,*args,**kwargs):
         self.slug = slugify(self.name)
         self.description_html = misaka.html(self.description)
         super().save(*args,**kwargs)
@@ -33,8 +33,8 @@ class Group(models.Model):
         ordering = ['name']
 
 class GroupMember(models.Model):
-    group = models.ForeignKey(Group, related_name='membership')
-    user = models.ForeignKey(User,related_name='user_groups')
+    group = models.ForeignKey(Group, related_name='membership',on_delete='cascade')
+    user = models.ForeignKey(User,related_name='user_groups',on_delete='cascade')
 
     def __str__(self):
         return self.user.username
